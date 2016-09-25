@@ -1,34 +1,38 @@
-// var openpgp = require('openpgp'); // use as CommonJS, AMD, ES6 module or via window.openpgp
-//
-// openpgp.initWorker({ path:'openpgp.worker.js' }) // set the relative web worker path
-//
-// openpgp.config.aead_protect = true // activate fast AES-GCM mode (not yet OpenPGP standard)
-//
-//
-// // Encrypt and decrypt Uint8Array data with a password
-//
-// var options, encrypted;
-//
-// options = {
-//     data: new Uint8Array([0x01, 0x01, 0x01]), // input as Uint8Array (or String)
-//     passwords: ['secret stuff'],              // multiple passwords possible
-//     armor: false                              // don't ASCII armor (for Uint8Array output)
-// };
-//
-// openpgp.encrypt(options).then(function(ciphertext) {
-//     encrypted = ciphertext.message.packets.write(); // get raw encrypted packets as Uint8Array
-// });
-//
-//
-// options = {
-//     message: openpgp.message.read(encrypted), // parse encrypted bytes
-//     password: 'secret stuff',                 // decrypt with password
-//     format: 'binary'                          // output as Uint8Array
-// };
-//
-// openpgp.decrypt(options).then(function(plaintext) {
-//     return plaintext.data // Uint8Array([0x01, 0x01, 0x01])
-// });
+var openpgp = window.openpgp; // use as CommonJS, AMD, ES6 module or via window.openpgp
+openpgp.initWorker({ path:'node_modules/openpgp/dist/openpgp.worker.js' }) // set the relative web worker path
+
+openpgp.config.aead_protect = true // activate fast AES-GCM mode (not yet OpenPGP standard)
+
+
+// Encrypt and decrypt Uint8Array data with a password
+
+var options;
+
+options = {
+  data: 'pasteta',                          // input as Uint8Array (or String)
+  passwords: ['secret stuff'],              // multiple passwords possible
+  armor: false                              // don't ASCII armor (for Uint8Array output)
+};
+
+openpgp.encrypt(options).then(function(ciphertext) {
+  var encrypted = ciphertext.message.packets.write(); // get raw encrypted packets as Uint8Array
+  console.log('encrypted: ' + JSON.stringify(encrypted));
+  return encrypted;
+}).then(function(encrypted) {
+  options = {
+    message: openpgp.message.read(encrypted), // parse encrypted bytes
+    password: 'secret stuff'                  // decrypt with password
+    // format: 'binary'                          // output as Uint8Array
+  };
+
+  openpgp.decrypt(options).then(function(plaintext) {
+    console.log('plaintext: ' + JSON.stringify(plaintext.data, null, 4))
+    return plaintext.data // Uint8Array([0x01, 0x01, 0x01])
+  });
+
+});
+
+
 
 
 
@@ -50,6 +54,7 @@ function handleFileSelect(evt) {
   // files is a FileList of File objects. List some properties.
   var output = [];
   for (var i = 0, f; f = files[i]; i++) {
+    console.log(JSON.stringify(f, null, 2));
     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
                 f.size, ' bytes, last modified: ',
                 f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
