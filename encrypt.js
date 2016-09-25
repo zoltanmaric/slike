@@ -1,0 +1,70 @@
+// var openpgp = require('openpgp'); // use as CommonJS, AMD, ES6 module or via window.openpgp
+//
+// openpgp.initWorker({ path:'openpgp.worker.js' }) // set the relative web worker path
+//
+// openpgp.config.aead_protect = true // activate fast AES-GCM mode (not yet OpenPGP standard)
+//
+//
+// // Encrypt and decrypt Uint8Array data with a password
+//
+// var options, encrypted;
+//
+// options = {
+//     data: new Uint8Array([0x01, 0x01, 0x01]), // input as Uint8Array (or String)
+//     passwords: ['secret stuff'],              // multiple passwords possible
+//     armor: false                              // don't ASCII armor (for Uint8Array output)
+// };
+//
+// openpgp.encrypt(options).then(function(ciphertext) {
+//     encrypted = ciphertext.message.packets.write(); // get raw encrypted packets as Uint8Array
+// });
+//
+//
+// options = {
+//     message: openpgp.message.read(encrypted), // parse encrypted bytes
+//     password: 'secret stuff',                 // decrypt with password
+//     format: 'binary'                          // output as Uint8Array
+// };
+//
+// openpgp.decrypt(options).then(function(plaintext) {
+//     return plaintext.data // Uint8Array([0x01, 0x01, 0x01])
+// });
+
+
+
+// File selection
+
+// Check for the various File API support.
+if (window.File && window.FileReader && window.FileList && window.Blob) {
+  // Great success! All the File APIs are supported.
+} else {
+  alert('The File APIs are not fully supported in this browser.');
+}
+
+function handleFileSelect(evt) {
+  evt.stopPropagation();
+  evt.preventDefault();
+
+  var files = evt.dataTransfer.files; // FileList object.
+
+  // files is a FileList of File objects. List some properties.
+  var output = [];
+  for (var i = 0, f; f = files[i]; i++) {
+    output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                f.size, ' bytes, last modified: ',
+                f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                '</li>');
+  }
+  document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+}
+
+function handleDragOver(evt) {
+  evt.stopPropagation();
+  evt.preventDefault();
+  evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+}
+
+// Setup the dnd listeners.
+var dropZone = document.getElementById('drop_zone');
+dropZone.addEventListener('dragover', handleDragOver, false);
+dropZone.addEventListener('drop', handleFileSelect, false);
