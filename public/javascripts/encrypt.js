@@ -4,35 +4,6 @@ openpgp.initWorker({path: 'node_modules/openpgp/dist/openpgp.worker.js'}); // se
 openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
 
 
-// Encrypt and decrypt Uint8Array data with a password
-
-var options;
-
-options = {
-    data: 'pasteta',                          // input as Uint8Array (or String)
-    passwords: ['secret stuff'],              // multiple passwords possible
-    armor: false                              // don't ASCII armor (for Uint8Array output)
-};
-
-openpgp.encrypt(options).then(function (ciphertext) {
-    var encrypted = ciphertext.message.packets.write(); // get raw encrypted packets as Uint8Array
-    console.log('encrypted: ' + JSON.stringify(encrypted));
-    return encrypted;
-}).then(function (encrypted) {
-    options = {
-        message: openpgp.message.read(encrypted), // parse encrypted bytes
-        password: 'secret stuff'                  // decrypt with password
-        // format: 'binary'                          // output as Uint8Array
-    };
-
-    openpgp.decrypt(options).then(function (plaintext) {
-        console.log('plaintext: ' + JSON.stringify(plaintext.data, null, 4));
-        return plaintext.data; // Uint8Array([0x01, 0x01, 0x01])
-    });
-
-});
-
-
 // File selection
 
 // Check for the various File API support.
