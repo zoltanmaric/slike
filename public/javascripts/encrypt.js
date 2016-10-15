@@ -104,7 +104,6 @@ function handleFileSelect(evt) {
                 var blob1 = new Blob([output], {type: "application/octet-stream"});
 
                 var fileName1 = json.filename;
-                debugger;
                 saveAs(blob1, fileName1);
             });
 
