@@ -34,29 +34,23 @@ function handleFileSelect(evt) {
     var reader = new FileReader();
 
     reader.onload = function (readerEvt) {
-        var binaryString = readerEvt.target.result;
-        var base64 = btoa(binaryString);
-
-        document.getElementById("base64textarea").value = base64;
+        var uint8ArrayInput = new Uint8Array(readerEvt.target.result);
+        console.log("input: " + JSON.stringify(uint8ArrayInput, null, 2));
 
         var options;
 
         options = {
-            data: base64,                          // input as Uint8Array (or String)
+            data: uint8ArrayInput,                       // input as Uint8Array (or String)
             passwords: ['secret stuff'],              // multiple passwords possible
-            armor: false                              // don't ASCII armor (for Uint8Array output)
+            armor: true                               // don't ASCII armor (for Uint8Array output)
         };
 
         // Encrypt
         openpgp.encrypt(options).then(function (ciphertext) {
-            return ciphertext.message.packets.write(); // get raw encrypted packets as Uint8Array
+            return ciphertext.data; // get raw encrypted packets as string
         }).then(function (encrypted) {
-            // Convert to base64
-            var encryptedBase64 = btoa(String.fromCharCode.apply(null, encrypted));
-            console.log('encryptedBase64: ' + JSON.stringify(encryptedBase64));
 
-            document.getElementById("encryptedBase64textarea").value = encryptedBase64;
-            console.log("Encrypted length is " + encryptedBase64.length);
+            document.getElementById("base64textarea").value = encrypted;
 
             // Upload
             return new Promise(function(resolve) {
@@ -72,7 +66,7 @@ function handleFileSelect(evt) {
                 };
                 var data = {
                     "filename": files[0].name,
-                    "encryptedData": encryptedBase64
+                    "encryptedData": encrypted
                 };
                 console.log("Posting file " + data.filename);
                 xhr.send(JSON.stringify(data));
@@ -97,38 +91,27 @@ function handleFileSelect(evt) {
         }).then(function (json) {
             // Decrypt and show
             console.log("Decrypting " + json.encryptedData);
-            var encryptedUint8Array = new Uint8Array(atob(json.encryptedData).split("").map(function(c) {
-                return c.charCodeAt(0); }));
             options = {
-                message: openpgp.message.read(encryptedUint8Array), // parse encrypted bytes
-                password: 'secret stuff'                  // decrypt with password
-                // format: 'binary'                          // output as Uint8Array
+                message: openpgp.message.readArmored(json.encryptedData), // parse encrypted bytes
+                password: 'secret stuff',                  // decrypt with password
+                format: 'binary'                          // output as Uint8Array
             };
 
-            openpgp.decrypt(options).then(function (plaintext) {
-                // console.log('plaintext: ' + JSON.stringify(plaintext.data, null, 4));
-                document.getElementById("decryptedBase64textarea").value = plaintext.data;
-
-                var byteCharacters = atob(plaintext.data);
-                var byteNumbers = new Array(byteCharacters.length);
-                for (var i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                var byteArray = new Uint8Array(byteNumbers);
+            openpgp.decrypt(options).then(function (decrypted) {
+                var output = decrypted.data;
 
                 // now that we have the byte array, construct the blob from it
-                var blob1 = new Blob([byteArray], {type: "application/octet-stream"});
+                var blob1 = new Blob([output], {type: "application/octet-stream"});
 
                 var fileName1 = json.filename;
+                debugger;
                 saveAs(blob1, fileName1);
-
-                return plaintext.data; // Uint8Array([0x01, 0x01, 0x01])
             });
 
         });
     };
 
-    reader.readAsBinaryString(files[0]);
+    reader.readAsArrayBuffer(files[0]);
 }
 
 function handleDragOver(evt) {
