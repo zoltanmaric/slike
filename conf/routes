@@ -11,6 +11,11 @@ GET     /message                    controllers.AsyncController.message
 
 # The encryption page
 GET     /encrypt                    controllers.EncryptionController.index
+# Upload a photo
+POST    /upload                     controllers.EncryptionController.upload
+# Download a photo by name
+GET     /download                   controllers.EncryptionController.download(filename: String)
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
