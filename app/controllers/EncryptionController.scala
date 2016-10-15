@@ -19,8 +19,9 @@ class EncryptionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)(im
   }
 
   def upload = Action.async(parse.json) { request =>
+    val json = request.body.asInstanceOf[JsObject]
     photosCollection
-      .flatMap(_.insert(request.body.asInstanceOf[JsObject]))
+      .flatMap(_.update(Json.obj("filename" -> json.value("filename")), json))
       .map(writeResult => Ok(s"Upload result: $writeResult"))
   }
 
