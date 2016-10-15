@@ -91,6 +91,20 @@ function handleFileSelect(evt) {
             openpgp.decrypt(options).then(function (plaintext) {
                 // console.log('plaintext: ' + JSON.stringify(plaintext.data, null, 4));
                 document.getElementById("decryptedBase64textarea").value = plaintext.data;
+
+                var byteCharacters = atob(plaintext.data);
+                var byteNumbers = new Array(byteCharacters.length);
+                for (var i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+
+                // now that we have the byte array, construct the blob from it
+                var blob1 = new Blob([byteArray], {type: "application/octet-stream"});
+
+                var fileName1 = "cool.jpg";
+                saveAs(blob1, fileName1);
+
                 return plaintext.data; // Uint8Array([0x01, 0x01, 0x01])
             });
 
