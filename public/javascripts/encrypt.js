@@ -1,7 +1,7 @@
 var openpgp = window.openpgp; // use as CommonJS, AMD, ES6 module or via window.openpgp
-openpgp.initWorker({ path:'node_modules/openpgp/dist/openpgp.worker.js' }) // set the relative web worker path
+openpgp.initWorker({ path:'node_modules/openpgp/dist/openpgp.worker.js' }); // set the relative web worker path
 
-openpgp.config.aead_protect = true // activate fast AES-GCM mode (not yet OpenPGP standard)
+openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
 
 
 // Encrypt and decrypt Uint8Array data with a password
@@ -26,8 +26,8 @@ openpgp.encrypt(options).then(function(ciphertext) {
   };
 
   openpgp.decrypt(options).then(function(plaintext) {
-    console.log('plaintext: ' + JSON.stringify(plaintext.data, null, 4))
-    return plaintext.data // Uint8Array([0x01, 0x01, 0x01])
+    console.log('plaintext: ' + JSON.stringify(plaintext.data, null, 4));
+    return plaintext.data; // Uint8Array([0x01, 0x01, 0x01])
   });
 
 });
@@ -62,6 +62,16 @@ function handleFileSelect(evt) {
                 '</li>');
   }
   document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+  var reader = new FileReader();
+
+  reader.onload = function(readerEvt) {
+    var binaryString = readerEvt.target.result;
+    var base64 = btoa(binaryString);
+    document.getElementById("base64textarea").value = base64;
+  };
+
+  reader.readAsBinaryString(files[0]);
 }
 
 function handleDragOver(evt) {
