@@ -1,3 +1,4 @@
 Installation:
 
-* npm install --save openpgp
+* `cd public/javascripts`
+* `npm install --save openpgp`
