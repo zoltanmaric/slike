@@ -68,7 +68,36 @@ function handleFileSelect(evt) {
   reader.onload = function(readerEvt) {
     var binaryString = readerEvt.target.result;
     var base64 = btoa(binaryString);
+
     document.getElementById("base64textarea").value = base64;
+
+    var options;
+
+    options = {
+      data: base64,                          // input as Uint8Array (or String)
+      passwords: ['secret stuff'],              // multiple passwords possible
+      armor: false                              // don't ASCII armor (for Uint8Array output)
+    };
+
+    openpgp.encrypt(options).then(function(ciphertext) {
+      var encrypted = ciphertext.message.packets.write(); // get raw encrypted packets as Uint8Array
+      // console.log('encrypted: ' + JSON.stringify(encrypted));
+      document.getElementById("encryptedBase64textarea").value = encrypted;
+      return encrypted;
+    }).then(function(encrypted) {
+      options = {
+        message: openpgp.message.read(encrypted), // parse encrypted bytes
+        password: 'secret stuff'                  // decrypt with password
+        // format: 'binary'                          // output as Uint8Array
+      };
+
+      openpgp.decrypt(options).then(function(plaintext) {
+        // console.log('plaintext: ' + JSON.stringify(plaintext.data, null, 4));
+        document.getElementById("decryptedBase64textarea").value = plaintext.data;
+        return plaintext.data; // Uint8Array([0x01, 0x01, 0x01])
+      });
+
+    });
   };
 
   reader.readAsBinaryString(files[0]);
