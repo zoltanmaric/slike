@@ -10,7 +10,6 @@ openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenP
  */
 function encrypt(plaintextArrayBuffer, password) {
     var uint8ArrayInput = new Uint8Array(plaintextArrayBuffer);
-    console.log("input: " + JSON.stringify(uint8ArrayInput, null, 2));
 
     var options = {
         data: uint8ArrayInput,                      // input as Uint8Array (or String)
