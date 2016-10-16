@@ -31,11 +31,26 @@ class EncryptionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)(im
       .map(Ok(_))
   }
 
+  def gallery = Action {
+    Ok(views.html.gallery())
+  }
+
+  def getFilenames = Action.async {
+    photosCollection
+      .flatMap(getAllFileNames)
+      .map(res => Ok(Json.toJson(res)))
+  }
+
   private def findOneByFilename(filename: String)(photos: JSONCollection): Future[JsObject] =
     photos.find(Json.obj("filename" -> filename))
       .cursor[JsObject](ReadPreference.secondaryPreferred)
       .collect[List]()
       .map(_.head)
+
+  private def getAllFileNames(photos: JSONCollection): Future[List[JsObject]] =
+    photos.find(Json.obj(), Json.obj("filename" -> 1))
+      .cursor[JsObject](ReadPreference.secondaryPreferred)
+      .collect[List]()
 
   private def photosCollection: Future[JSONCollection] =
     database.map(_.collection[JSONCollection]("photos"))

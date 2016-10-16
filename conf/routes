@@ -15,6 +15,10 @@ GET     /encrypt                    controllers.EncryptionController.index
 POST    /upload                     controllers.EncryptionController.upload
 # Download a photo by name
 GET     /download                   controllers.EncryptionController.download(filename: String)
+# Get filenames
+GET     /getFilenames               controllers.EncryptionController.getFilenames
+# The gallery page
+GET     /gallery                    controllers.EncryptionController.gallery
 
 
 # Map static resources from the /public folder to the /assets URL path

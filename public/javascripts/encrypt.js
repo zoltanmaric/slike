@@ -22,7 +22,7 @@ function encrypt(plaintextArrayBuffer, password) {
     })
 }
 
-function decrypt(pgpMessage, password) {
+function decryptContent(pgpMessage, password) {
     var options = {
         message: openpgp.message.readArmored(pgpMessage),   // parse encrypted string
         password: password,                                 // decrypt with password
