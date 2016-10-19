@@ -35,10 +35,10 @@ function displayPhotos() {
             }).then(function(decrypted) {
                 console.log(fileInfo.filename + ' successfully decrypted.');
                 var urlCreator = window.URL || window.webkitURL;
-                var imageUrl = urlCreator.createObjectURL(new Blob(decrypted));
+                var imageUrl = urlCreator.createObjectURL(new Blob([decrypted]));
                 console.log("image url: " + imageUrl);
                 var imageBullet = document.getElementById(fileInfo._id.$oid);
-                imageBullet.innerHTML = '<img src="' + imageUrl + ' />';
+                imageBullet.innerHTML = '<img src="' + imageUrl + '" />';
             });
         });
     });
